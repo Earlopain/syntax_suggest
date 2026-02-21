@@ -140,7 +140,7 @@ module SyntaxSuggest
     #         where(name: 'schneems')
     #     EOM
     #     expect(
-    #       values.count {|v| v.type == :on_ignored_nl}
+    #       values.count {|v| v.type.ignore_newline?}
     #     ).to eq(1)
     #
     # After the comment is removed:
@@ -151,7 +151,7 @@ module SyntaxSuggest
     #         where(name: 'schneems')
     #     EOM
     #     expect(
-    #      values.count {|v| v.type == :on_ignored_nl}
+    #      values.count {|v| v.type.ignore_newline?}
     #    ).to eq(2)
     #
     def clean_sweep(source:)
@@ -184,9 +184,9 @@ module SyntaxSuggest
       lines.each do |line|
         line.lex.each do |lex_value|
           case lex_value.type
-          when :on_heredoc_beg
+          when :HEREDOC_START
             start_index_stack << line.index
-          when :on_heredoc_end
+          when :HEREDOC_END
             start_index = start_index_stack.pop
             end_index = line.index
             heredoc_beg_end_index << [start_index, end_index]

@@ -169,10 +169,12 @@ module SyntaxSuggest
     #
     # For some reason this introduces `on_ignore_newline` but with BEG type
     def ignore_newline_not_beg?
-      @ignore_newline_not_beg
+      false
     end
 
-    # Determines if the given line has a trailing slash
+    # Determines if the given line has a trailing slash.
+    # Simply check if the line contains a backslash after
+    # the content of the last token
     #
     #     lines = CodeLine.from_source(<<~EOM)
     #       it "foo" \
@@ -180,17 +182,8 @@ module SyntaxSuggest
     #     expect(lines.first.trailing_slash?).to eq(true)
     #
     def trailing_slash?
-      last = @lex.last
-
-      # Older versions of prism diverged slightly from Ripper in compatibility mode
-      case last&.type
-      when :on_sp
-        last.token == TRAILING_SLASH
-      when :on_tstring_end
-        true
-      else
-        false
-      end
+      return unless (last = @lex.last)
+      @line.byteindex(TRAILING_SLASH, last.location.end_offset)
     end
 
     # Endless method detection
@@ -203,34 +196,13 @@ module SyntaxSuggest
     #
     private def set_kw_end
       oneliner_count = 0
-      in_oneliner_def = nil
 
       kw_count = 0
       end_count = 0
 
-      @ignore_newline_not_beg = false
       @lex.each do |lex|
         kw_count += 1 if lex.is_kw?
         end_count += 1 if lex.is_end?
-
-        if lex.type == :on_ignored_nl
-          @ignore_newline_not_beg = !lex.expr_beg?
-        end
-
-        if in_oneliner_def.nil?
-          in_oneliner_def = :ENDFN if lex.state.allbits?(Ripper::EXPR_ENDFN)
-        elsif lex.state.allbits?(Ripper::EXPR_ENDFN)
-          # Continue
-        elsif lex.state.allbits?(Ripper::EXPR_BEG)
-          in_oneliner_def = :BODY if lex.token == "="
-        elsif lex.state.allbits?(Ripper::EXPR_END)
-          # We found an endless method, count it
-          oneliner_count += 1 if in_oneliner_def == :BODY
-
-          in_oneliner_def = nil
-        else
-          in_oneliner_def = nil
-        end
       end
 
       kw_count -= oneliner_count

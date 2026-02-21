@@ -57,7 +57,7 @@ module SyntaxSuggest
     #   # => 0
     def count_lex(lex)
       case lex.type
-      when :on_tstring_content
+      when :STRING_CONTENT
         # ^^^
         # Means it's a string or a symbol `"{"` rather than being
         # part of a data structure (like a hash) `{ a: b }`
@@ -72,7 +72,7 @@ module SyntaxSuggest
         # can be used
         char = lex.token[-1]
         @count_for_char[char] += 1 if @count_for_char.key?(char)
-      when :on_embexpr_beg
+      when :EMBEXPR_BEGIN
         # ^^^
         # Embedded string expressions like `"#{foo} <-embed"`
         # are parsed with chars:

@@ -14,14 +14,15 @@ module SyntaxSuggest
 
     def initialize(source:)
       @lex = self.class.lex(source, 1)
-      last_lex = nil
-      @lex.map! { |elem|
-        last_lex = LexValue.new(elem[0].first, elem[1], elem[2], elem[3], last_lex)
+      @lex.map! { |token, _state|
+        LexValue.new(token)
       }
     end
 
     def self.lex(source, line_number)
-      Prism.lex_compat(source, line: line_number).value.sort_by { |values| values[0] }
+      lex = Prism.lex(source, line: line_number).value
+      lex.sort_by! { |token, _state| token.location.start_line }
+      lex
     end
 
     def to_a
