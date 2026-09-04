@@ -256,5 +256,17 @@ module SyntaxSuggest
         end_is_missing_here
       EOM
     end
+
+    it "ignores code that has invalid bytes" do
+      source = "\xFF\xFE"
+
+      io = StringIO.new
+      SyntaxSuggest.call(
+        io: io,
+        source: source
+      )
+      out = io.string
+      expect(out).to be_empty
+    end
   end
 end

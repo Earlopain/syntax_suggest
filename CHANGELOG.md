@@ -1,5 +1,7 @@
 ## HEAD (unreleased)
 
+- Fix: Don't try to analyze code that has invalid bytes. (https://github.com/ruby/syntax_suggest/issues/258)
+
 ## 3.0.0
 
 - Changed: Minimum supported Ruby version is now 3.3. (https://github.com/ruby/syntax_suggest/pull/246)

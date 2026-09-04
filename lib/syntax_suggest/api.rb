@@ -64,6 +64,13 @@ module SyntaxSuggest
   #
   # Main private interface
   def self.call(source:, filename: DEFAULT_VALUE, terminal: DEFAULT_VALUE, record_dir: DEFAULT_VALUE, timeout: TIMEOUT_DEFAULT, io: $stderr)
+    unless source.valid_encoding?
+      if ENV["SYNTAX_SUGGEST_DEBUG"]
+        puts "SyntaxSuggest: Ignoring #{filename} because it contains invalid bytes"
+      end
+      return
+    end
+
     search = nil
     filename = nil if filename == DEFAULT_VALUE
     Timeout.timeout(timeout) do
