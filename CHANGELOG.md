@@ -1,5 +1,7 @@
 ## HEAD (unreleased)
 
+- Fix: `SYNTAX_SUGGEST_DEBUG` no longer raises `NoMethodError`. Previously this code path called `$stderr.warn` which is a private method. Now it uses `warn` instead.
+
 ## 3.0.0
 
 - Changed: Minimum supported Ruby version is now 3.3. (https://github.com/ruby/syntax_suggest/pull/246)
